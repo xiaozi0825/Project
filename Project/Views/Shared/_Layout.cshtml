@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <script src="http://maps.googleapis.com/maps/api/js?key=AIzaSyDEZQCK1oifHGahGjAiyuyQ5KbiU3nRE8k"></script>
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.3.914/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.3.914/styles/kendo.default.min.css" />
+
+    <script src="http://kendo.cdn.telerik.com/2016.3.914/js/jquery.min.js"></script>
+    <script>
+        if (typeof jQuery == "undefined") {
+            // fallback to local jQuery
+            document.write(decodeURIComponent('%3Cscript src="/path/to/local/jquery.min.js" %3E%3C/script%3E'));
+        }
+    </script>
+
+    <script src="http://kendo.cdn.telerik.com/2016.3.914/js/kendo.all.min.js"></script>
+    <script>
+        if (typeof kendo == "undefined") {
+            // checking for loaded CSS files is cumbersome,
+            // that's why we assume that if the scripts have failed, so have the stylesheets
+
+            // fallback to local Kendo UI stylesheets
+            document.write(decodeURIComponent('%3Clink rel="stylesheet" href="/path/to/local/kendo.common.min.css" %3C/%3E'));
+            document.write(decodeURIComponent('%3Clink rel="stylesheet" href="/path/to/local/kendo.default.min.css" %3C/%3E'));
+
+            // fallback to local Kendo UI scripts
+            document.write(decodeURIComponent('%3Cscript src="/path/to/local/kendo.all.min.js" %3E%3C/script%3E'));
+            // also add kendo.aspnetmvc.min.js or kendo.timezones.min.js, if needed
+        }
+    </script>
+</head>
+<body>
+
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderBody()
+    @RenderSection("scripts", required: false)
+    <div id="example" style="height: 5%; position:fixed; width: 100%;">
+        <div class="demo-section k-content">
+            <ul id="menu">
+                <li>
+                    首頁
+                </li>
+                <li>
+                    景點、美食導覽
+                </li>
+                <li>
+                    搜尋景點
+                    <ul>
+                        <li>關鍵字搜尋</li>
+                        <li>定位搜尋周圍景點</li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            function onOpen(e) {
+                console.log("Opened: " + ($(e.item).children(".k-link").text() || "ContextMenu"));
+            }
+
+            function onClose(e) {
+                console.log("Closed: " + ($(e.item).children(".k-link").text() || "ContextMenu"));
+            }
+
+            function onSelect(e) {
+                console.log("Selected: " + $(e.item).children(".k-link").text());
+            }
+
+            function onActivate(e) {
+                console.log("Activated: " + ($(e.item).children(".k-link").text() || "ContextMenu"));
+            }
+
+            function onDeactivate(e) {
+                console.log("Deactivated: " + ($(e.item).children(".k-link").text() || "ContextMenu"));
+            }
+
+            $("#menu").kendoMenu({
+                select: onSelect,
+                open: onOpen,
+                close: onClose,
+                activate: onActivate,
+                deactivate: onDeactivate
+            });
+
+        });
+    </script>
+
+    <style>
+        .demo-section .box-col li {
+            margin-bottom: 0;
+        }
+
+        #context-target {
+            cursor: pointer;
+            color: red;
+        }
+
+            #context-target:hover {
+                text-decoration: underline;
+            }
+    </style>
+</body>
+</html>

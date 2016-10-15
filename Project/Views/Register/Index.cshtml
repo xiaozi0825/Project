@@ -1,0 +1,51 @@
+﻿@model Project.Models.UserDetail
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    @using (Html.BeginForm("Register", "Register", FormMethod.Post, new { name = "Register" }))
+    {
+        <div class="demo-section k-content">
+            <ul id="fieldlist">
+                <li>
+                    <label for="UserAccount">UserAccount:</label>
+                    @Html.TextBoxFor(Models => Models.UserAccount , new { type="required",required= "required" })
+                </li>
+                <li>
+                    <label for="UserPassword">UserPassword:</label>
+                    @Html.TextBoxFor(Models => Models.UserPassword, new { type="Password" })
+                </li>
+                <li>
+                    <label for="UserName">UserName:</label>
+                    @Html.TextBoxFor(Models => Models.UserName)
+                </li>
+                <li>
+                    <label for="UserSex">UserSex:</label>
+                    @Html.RadioButtonFor(Models => Models.UserSex, "1") Male
+                    @Html.RadioButtonFor(Models => Models.UserSex, "2") Female
+                </li>
+                <li>
+                    <label for="UserEmail">UserEmail:</label>
+                    @Html.TextBoxFor(Models => Models.UserEmail)
+                </li>
+                <li>
+                    <input type="submit" value="確認送出"/>
+                </li>
+            </ul>
+        </div>
+    }
+
+        <script>
+            
+        </script>
+</body>
+
+</html>
