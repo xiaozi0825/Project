@@ -25,139 +25,28 @@
         <div id="window">
             <div id="googlemap" style="height:95%; width:90%; margin: 0 auto;"></div>
         </div>
-       
 
         <script type="text/javascript">
-            var template = kendo.template("<button class='k-button' onclick='getopendata(\"${ Id }\",1);' style='display: block; margin: 0 auto;'>導覽</button>");
             $(document).ready(function () {
-                $("#opendatagrid").kendoGrid({
-                    sortable: true,
-                    scrollable: true,
-                    filterable: {
-                        mode: "row"
-                    },
-                    columnMenu: true,
-                    serverPaging: true,
-                    serverFiltering: true,
-                    height: "75%",
-                    mobile: true,
-                    pageable: {
-                        pageSizes: 9
-                    },
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=1&FileType=1&Lang=C&FolderType=",
-                                dataType: "Json"
-                            }
-                        }
-                    },
-                    columns: [
-                        {
-                            field: "Name",
-                            title: " ",
-                            width: "70%",
-                            headerAttributes: { "class": "table-header-cell", style: "text-align: center; font-size: 14px" },
-                            attributes: { style: "text-align: center; font-size: 14px" },
-                            filterable: {
-                                cell: {
-                                    operator: "Contains"
-                                }
-                            }
-                        },
-                        { template: template }
-                    ]
-
-                });
+                var template = kendo.template("<button class='k-button' onclick='getopendata(\"${ Id }\",1);' style='display: block; margin: 0 auto;'>導覽</button>");
+                var url = "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=1&FileType=1&Lang=C&FolderType=";
+                CreateKendoGrid(url, template);
             });
+
             function getView() {
                 var template = kendo.template("<button class='k-button' onclick='getopendata(\"${ Id }\",1);' style='display: block; margin: 0 auto;'>導覽</button>");
-                $("#opendatagrid").kendoGrid({
-                    sortable: true,
-                    scrollable: true,
-                    filterable: {
-                        mode: "row"
-                    },
-                    columnMenu: true,
-                    serverPaging: true,
-                    serverFiltering: true,
-                    height: "75%",
-                    mobile: true,
-                    pageable: {
-                        pageSizes: 9
-                    },
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=1&FileType=1&Lang=C&FolderType=",
-                                dataType: "Json"
-                            }
-                        }
-                    },
-                    columns: [
-                        {
-                            field: "Name",
-                            title: " ",
-                            width: "70%",
-                            headerAttributes: { "class": "table-header-cell", style: "text-align: center; font-size: 14px" },
-                            attributes: { style: "text-align: center; font-size: 14px" },
-                            filterable: {
-                                cell: {
-                                    operator: "Contains"
-                                }
-                            }
-                        },
-                        { template: template }
-                    ]
-
-                });
+                var url = "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=1&FileType=1&Lang=C&FolderType=";
+                CreateKendoGrid(url, template);
             }
+
             function getEat() {
                 var template = kendo.template("<button class='k-button' onclick='getopendata(\"${ Id }\",2);' style='display: block; margin: 0 auto;'>導覽</button>");
-                $("#opendatagrid").kendoGrid({
-                    sortable: true,
-                    scrollable: true,
-                    filterable: {
-                        mode: "row"
-                    },
-                    columnMenu: true,
-                    serverPaging: true,
-                    serverFiltering: true,
-                    height: "75%",
-                    mobile: true,
-                    pageable: {
-                        pageSizes: 9
-                    },
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=2&FileType=1&Lang=C&FolderType=O",
-                                dataType: "Json"
-                            }
-                        }
-                    },
-                    columns: [
-                        {
-                            field: "Name",
-                            title: " ",
-                            width: "70%",
-                            headerAttributes: { "class": "table-header-cell", style: "text-align: center; font-size: 14px" },
-                            attributes: { style: "text-align: center; font-size: 14px" },
-                            filterable: {
-                                cell: {
-                                    operator: "Contains"
-                                }
-                            }
-                        },
-                        { template: template }
-                    ]
-
-                });
+                var url = "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=2&FileType=1&Lang=C&FolderType=O";
+                CreateKendoGrid(url, template);
             }
+
             function getopendata(data, kind) {
-                var value = data;
                 document.getElementById("ViewImage").innerHTML = "";
-                console.log(value);
                 if (kind == 1) {
                     $.ajax(
                     {
@@ -171,8 +60,7 @@
                                     document.getElementById("Description").innerHTML = "<div id='p'><h2 style='color: #5599FF;'><b>" + jsondata[a].Name + "</b></h2><br/>" + jsondata[a].Description + "</div><br/><hr><div id='p' >電話：" + jsondata[a].Tel + "<br/>地址：" + jsondata[a].Add +
                                                                                         "<br/>開放時間：" + jsondata[a].Opentime + "<br/>票價資訊：" + jsondata[a].Ticketinfo + "</div>";
                                     document.getElementById("ViewImage").innerHTML = "<div id='img' style='background-image:url(" + jsondata[a].Picture1 + ");background-size:100% 100%; background-repeat:no-repeat;'></div>"
-                                    document.getElementById("ViewImage").innerHTML += "<button type='button' class='k-button' id='map' onclick = 'ShowLocalMap(" + jsondata[a].Py + "," + jsondata[a].Px  + ")'>查看地點</button>";
-                                    
+                                    document.getElementById("ViewImage").innerHTML += "<button type='button' class='k-button' id='map' onclick = 'ShowLocalMap(" + jsondata[a].Py + "," + jsondata[a].Px + ")'>查看地點</button>";
                                 }
                             }
                         }
@@ -191,14 +79,14 @@
                                     document.getElementById("Description").innerHTML = "<div id='p'><h2 style='color: #5599FF;'><b>" + jsondata[a].Name + "</b></h2><br/>" + jsondata[a].Description + "</div><br/><hr><div id='p' >電話：" + jsondata[a].Tel + "<br/>地址：" + jsondata[a].Add +
                                                                                         "<br/>開放時間：" + jsondata[a].Opentime + "</div>";
                                     document.getElementById("ViewImage").innerHTML = "<div id='img' style='background-image:url(" + jsondata[a].Picture1 + ");background-size:100% 100%; background-repeat:no-repeat;'></div>"
-                                    document.getElementById("ViewImage").innerHTML += "<button type='button' class='k-button' id='map' onclick = 'ShowLocalMap(" + jsondata[a].Py + "," + jsondata[a].Px  + ")'>查看地點</button>";
-                                    
+                                    document.getElementById("ViewImage").innerHTML += "<button type='button' class='k-button' id='map' onclick = 'ShowLocalMap(" + jsondata[a].Py + "," + jsondata[a].Px + ")'>查看地點</button>";
                                 }
                             }
                         }
                     });
                 }
             }
+
             function ShowLocalMap(lat, lon, name) {
                 $("#map").fadeOut();
                 $("#window").kendoWindow({
@@ -237,14 +125,59 @@
                 google.maps.event.addListener(marker, 'click', function () {
                     infowindow.open(map, marker);
                 });
-               
+
             }
+
             function onClose() {
                 $("#map").fadeIn();
             }
 
-            
+            function CreateKendoGrid(url, template) {
+                console.log(url);
+                console.log(template);
+                $("#opendatagrid").kendoGrid({
+                    sortable: true,
+                    scrollable: true,
+                    filterable: {
+                        mode: "row"
+                    },
+                    columnMenu: true,
+                    serverPaging: true,
+                    serverFiltering: true,
+                    height: "75%",
+                    mobile: true,
+                    pageable: {
+                        pageSizes: 9
+                    },
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: url,
+                                dataType: "Json"
+                            }
+                        }
+                    },
+                    columns: [
+                        {
+                            field: "Name",
+                            title: " ",
+                            width: "70%",
+                            headerAttributes: { "class": "table-header-cell", style: "text-align: center; font-size: 14px" },
+                            attributes: { style: "text-align: center; font-size: 14px" },
+                            filterable: {
+                                cell: {
+                                    operator: "Contains"
+                                }
+                            }
+                        },
+                        { template: template }
+                    ]
+
+                });
+            }
+
         </script>
+
         <style>
             html,
             body {
