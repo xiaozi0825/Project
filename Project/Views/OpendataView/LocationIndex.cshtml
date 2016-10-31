@@ -1,0 +1,369 @@
+﻿
+@{
+    ViewBag.Title = "LocationIndex";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>自動搜尋</title>
+
+</head>
+<body>
+    <div style="width: 100%; height: 100%; float: left; padding-top:2.5%;">
+        <div id="choose">
+            <p>
+                <input type="text" id="distance" class="k-textbox" placeholder="請輸入搜尋半徑(公里)">
+                <button type="button" class='k-button' onclick='getView();'>景點</button>
+                <button type="button" class='k-button' onclick='getEat();'>美食</button>
+            </p>
+        </div>
+        <div id="opendatagrid"></div>
+        <div id="Detail" style="width: 70%; height: 100%; float: left;">
+            <div id="Description"></div>
+            <div id="ViewImage"></div>
+            <div id="footer"></div>
+        </div>
+        <div id="window">
+            <div id="googlemap" style="height:95%; width:90%; margin: 0 auto;"></div>
+        </div>
+        <div id="dialog">
+        </div>
+
+        <script type="text/javascript">
+            distance = 0;
+            var obj = new Object;
+            var num = 0;
+            var EARTH_RADIUS = 6371;//地球半徑6371km
+            var lat, lon;
+            $(document).ready(function () {
+                getLocation();
+                
+            });
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showlocation);
+                }
+                else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            }
+            function showlocation(position) {
+                lat = position.coords.latitude;
+                lon = position.coords.longitude;
+
+            }
+            function getDistance(lat1, lng1, lat2, lng2) {
+                var radLat1 = rad(lat1);
+                var radLat2 = rad(lat2);
+                var a = radLat1 - radLat2;
+                var b = rad(lng1) - rad(lng2);
+                var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) +
+                Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
+                s = s * EARTH_RADIUS;
+                s = Math.round(s * 10000) / 10000;
+                return s;
+            }
+            function rad(d) {
+                return d * Math.PI / 180.0;
+            }
+            function getView() {
+                var template = kendo.template("<button class='k-button' onclick='getopendata(\"${ Id }\",1);' style='display: block; margin: 0 auto;'>導覽</button>");
+                var viewinfo;
+                var arr = new Array();
+                if (distance != 0) {
+                    $.ajax({
+                        url: "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=1&FileType=1&Lang=C&FolderType=",
+                        type: "GET",
+                        dataType: "json",
+                        success: function (Jdata) {
+                            if (Jdata) {
+                                $.each(Jdata, function (i, item) {
+                                    var inner =
+                                    {
+                                        Id: item.Id,
+                                        Name: item.Name,
+                                        Description: item.Description,
+                                        Tel: item.Tel,
+                                        Add: item.Add,
+                                        Opentime: item.Opentime,
+                                        Ticketinfo: item.Ticketinfo,
+                                        Picture1: item.Picture1,
+                                        Py: item.Py,
+                                        Px: item.Px,
+                                    }
+                                    arr.push(inner);
+                                });
+                            }
+                            var viewData = $.grep(arr, function (item, i) {
+                                return getDistance(lat, lon, item.Py, item.Px) <= distance;
+                            });
+                            viewinfo = JSON.stringify(viewData);
+                            CreateGrid(viewinfo, template);
+                        },
+                        error: function () {
+                            alert("ERROR!!!");
+                        }
+                    });
+                }
+                else { showErrorMessage(); }
+            }
+            function getEat() {
+                var template = kendo.template("<button class='k-button' onclick='getopendata(\"${ Id }\",2);' style='display: block; margin: 0 auto;'>導覽</button>");
+                var eatinfo;
+                var arr = new Array();
+                if (distance != 0) {
+                    $.ajax({
+                        url: "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=2&FileType=1&Lang=C&FolderType=O",
+                        type: "GET",
+                        dataType: "json",
+                        success: function (Jdata) {
+                            if (Jdata) {
+                                $.each(Jdata, function (i, item) {
+                                    var inner =
+                                    {
+                                        Id: item.Id,
+                                        Name: item.Name,
+                                        Description: item.Description,
+                                        Tel: item.Tel,
+                                        Add: item.Add,
+                                        Opentime: item.Opentime,
+                                        Picture1: item.Picture1,
+                                        Py: item.Py,
+                                        Px: item.Px,
+                                    }
+                                    arr.push(inner);
+                                });
+                            }
+                            var eatData = $.grep(arr, function (item, i) {
+                                return getDistance(lat, lon, item.Py, item.Px) <= distance;
+                            });
+                            eatinfo = JSON.stringify(eatData);
+                            CreateGrid(eatinfo, template);
+                        },
+                        error: function () {
+                            alert("ERROR!!!");
+                        }
+                    });
+                }
+                else { showErrorMessage(); }
+            }
+            function getopendata(data, kind) {
+                document.getElementById("ViewImage").innerHTML = "";
+                if (kind == 1) {
+                    $.ajax(
+                    {
+                        url: "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=1&FileType=1&Lang=C&FolderType=",
+                        type: "GET",
+                        datatype: "json",
+                        success: function (result) {
+                            var jsondata = JSON.parse(result);
+                            for (var a = 0; a < jsondata.length; a++) {
+                                if (jsondata[a].Id == data) {
+                                    document.getElementById("Description").innerHTML = "<div id='p'><h2 style='color: #5599FF;'><b>" + jsondata[a].Name + "</b></h2><br/>" + jsondata[a].Description + "</div><br/><hr><div id='p' >電話：" + jsondata[a].Tel + "<br/>地址：" + jsondata[a].Add +
+                                                                                        "<br/>開放時間：" + jsondata[a].Opentime + "<br/>票價資訊：" + jsondata[a].Ticketinfo + "</div>";
+                                    document.getElementById("ViewImage").innerHTML = "<div id='img' style='background-image:url(" + jsondata[a].Picture1 + ");background-size:100% 100%; background-repeat:no-repeat;'></div>"
+                                    document.getElementById("ViewImage").innerHTML += "<button type='button' class='k-button' id='map' onclick = 'ShowLocalMap(" + jsondata[a].Py + "," + jsondata[a].Px + ")'>查看地點</button>";
+
+                                }
+                            }
+                        }
+                    });
+                }
+                else if (kind == 2) {
+                    $.ajax(
+                    {
+                        url: "http://data.kaohsiung.gov.tw/Opendata/DownLoad.aspx?Type=2&CaseNo1=AV&CaseNo2=2&FileType=1&Lang=C&FolderType=O",
+                        type: "GET",
+                        datatype: "json",
+                        success: function (result) {
+                            var jsondata = JSON.parse(result);
+                            for (var a = 0; a < jsondata.length; a++) {
+                                if (jsondata[a].Id == data) {
+                                    document.getElementById("Description").innerHTML = "<div id='p'><h2 style='color: #5599FF;'><b>" + jsondata[a].Name + "</b></h2><br/>" + jsondata[a].Description + "</div><br/><hr><div id='p' >電話：" + jsondata[a].Tel + "<br/>地址：" + jsondata[a].Add +
+                                                                                        "<br/>開放時間：" + jsondata[a].Opentime + "</div>";
+                                    document.getElementById("ViewImage").innerHTML = "<div id='img' style='background-image:url(" + jsondata[a].Picture1 + ");background-size:100% 100%; background-repeat:no-repeat;'></div>"
+                                    document.getElementById("ViewImage").innerHTML += "<button type='button' class='k-button' id='map' onclick = 'ShowLocalMap(" + jsondata[a].Py + "," + jsondata[a].Px + ")'>查看地點</button>";
+
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            function ShowLocalMap(lat, lon, name) {
+                $("#map").fadeOut();
+                $("#window").kendoWindow({
+                    height: "70%",
+                    width: "80%",
+                    title: "Google Map 標示",
+                    visible: false,
+                    actions: [
+                        "Pin",
+                        "Minimize",
+                        "Maximize",
+                        "Close"
+                    ],
+                    close: onClose
+                }).data("kendoWindow").center().open();
+                var localname = name;
+                var mapholder = document.getElementById("googlemap")
+                var mapProp = {
+                    center: new google.maps.LatLng(lat, lon),
+                    zoom: 18,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                var map = new google.maps.Map(mapholder, mapProp);
+
+                //create target
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(lat, lon),
+                });
+
+                marker.setMap(map);
+                //click appear infowindow
+                var infowindow = new google.maps.InfoWindow({
+                    content: localname
+                });
+
+                google.maps.event.addListener(marker, 'click', function () {
+                    infowindow.open(map, marker);
+                });
+
+            }
+            function onClose() {
+                $("#map").fadeIn();
+            }
+            function CreateGrid(griddate, template) {
+                $("#opendatagrid").kendoGrid({
+                    sortable: true,
+                    scrollable: true,
+                    filterable: {
+                        mode: "row"
+                    },
+                    columnMenu: true,
+                    serverPaging: true,
+                    serverFiltering: true,
+                    height: "75%",
+                    mobile: true,
+                    pageable: {
+                        pageSizes: 9
+                    },
+                    dataSource: JSON.parse(griddate),
+                    columns: [
+                        {
+                            field: "Name",
+                            title: " ",
+                            width: "70%",
+                            headerAttributes: { "class": "table-header-cell", style: "text-align: center; font-size: 14px" },
+                            attributes: { style: "text-align: center; font-size: 14px" },
+                            filterable: {
+                                cell: {
+                                    operator: "Contains"
+                                }
+                            }
+                        },
+                        { template: template }
+                    ]
+
+                });
+            }
+            function showErrorMessage() {
+                $('#dialog').kendoDialog({
+                    width: "300px",
+                    title: "相關欄位未填寫",
+                    closable: false,
+                    modal: false,
+                    content: "<p>請填寫 '搜尋半徑' 欄位<p>",
+                    actions: [
+                        { text: '前去填寫' }
+                    ]
+                });
+                $('#dialog').data("kendoDialog").open();
+            }
+
+            $("#distance").change(function () {
+                distance = $("#distance").val();
+            });
+        </script>
+        <style>
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                min-height: 100%;
+                line-height: 30px;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            #opendatagrid {
+                float: left;
+                width: 25%;
+                height: 85%;
+            }
+
+            #choose {
+                width: 25%;
+                height: 5%;
+            }
+
+            #Description {
+                float: left;
+                width: 50%;
+                height: 80%;
+            }
+
+            #ViewImage {
+                width: 50%;
+                height: 80%;
+                text-align: center;
+                float: left;
+            }
+
+            #footer {
+                clear: both;
+                height: 80px;
+                text-align: center;
+                line-height: 80px;
+            }
+
+            #p {
+                width: 100%;
+                min-width: 120px;
+                display: inline-block;
+                text-align: center;
+                margin: 0px auto;
+                font-size: 14pt;
+                padding-top: 30px;
+                padding-bottom: 30px;
+                padding-right: 15px;
+                padding-left: 15px;
+                font-family: Microsoft JhengHei;
+            }
+
+            hr {
+                border: 0;
+                height: 1px;
+                background-color: #d4d4d4;
+                color: #d4d4d4; /* IE6 */
+            }
+
+            #img {
+                width: 90%;
+                height: 85%;
+                margin: 30px auto;
+                border: none;
+            }
+
+           
+        </style>
+    </div>
+</body>
+</html>
